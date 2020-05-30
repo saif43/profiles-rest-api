@@ -7,12 +7,12 @@ class HelloSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=10)
 
 
-class UserProfileSerializwe(serializers.ModelSerializer):
+class UserProfileSerializer(serializers.ModelSerializer):
     """Serializes a user profile object"""
 
     class Meta:
         model = models.UserProfile
-        fields = ('id', 'name', 'email', 'password')
+        fields = ('id', 'email', 'name', 'password')
         extra_kwargs = {
             'password': {
                 'write_only': True,

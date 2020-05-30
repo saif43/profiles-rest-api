@@ -1,7 +1,9 @@
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from profiles_api import serializers
+from profiles_api import serializers, models, permissions
+from rest_framework.authentication import TokenAuthentication
+
 
 class HelloAPIView(APIView):
     """Test API View"""
@@ -10,7 +12,7 @@ class HelloAPIView(APIView):
     def get(self, request, format=None):
         """Returns a dictionary"""
 
-        an_apiview = ['1','2','3','4']
+        an_apiview = ['1', '2', '3', '4']
 
         return Response({'message': 'Hello', 'an_apiview': an_apiview})
 
@@ -23,9 +25,8 @@ class HelloAPIView(APIView):
             message = 'Hello {}'.format(name)
 
             return Response({'message': message})
-        
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class HelloViewSet(viewsets.ViewSet):
@@ -36,7 +37,7 @@ class HelloViewSet(viewsets.ViewSet):
     def list(self, request):
         """Return a Hello message"""
 
-        a_viewset =  ['1','2','3','4']
+        a_viewset = ['1', '2', '3', '4']
 
         return(
             Response({
@@ -53,12 +54,20 @@ class HelloViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             name = serializer.validated_data.get('name')
             message = 'Hello {}'.format(name)
-        
+
             return Response({'message': message})
         else:
             return Response(
                 serializer.errors,
-                status = status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST
             )
 
-    
+
+class UserProfileViewSet(viewsets.ModelViewSet):
+    """Handle creating and updating profiles"""
+    serializer_class = serializers.UserProfileSerializer
+    queryset = models.UserProfile.objects.all()
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [permissions.UpdateOwnProfile]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', 'email']

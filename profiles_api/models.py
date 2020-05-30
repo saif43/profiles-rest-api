@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
+
 class UserProfileManager(BaseUserManager):
     """Manager for user profiles"""
 
@@ -28,7 +29,6 @@ class UserProfileManager(BaseUserManager):
         return user
 
 
-
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """Database model for users in the system"""
     email = models.EmailField(max_length=255, unique=True)
@@ -44,7 +44,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def get_full_name(self):
         """Retrieve full name of user"""
         return self.name
-    
+
     def get_short_name(self):
         """Retrieve short name of user"""
         return self.name
