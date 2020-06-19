@@ -57,10 +57,10 @@ vagrant ssh
 
 Run
 
-```sh
-+ vagrant@ubuntu-bionic:/vagrant$ cd /vagrant
-+ vagrant@ubuntu-bionic:/vagrant$ pyhton -m venv ~/venv
-```
+````sh
+```diff + **vagrant@ubuntu-bionic:/vagrant$**``` cd /vagrant
+**vagrant@ubuntu-bionic:/vagrant$** pyhton -m venv ~/venv
+````
 
 The reason we are using ~ because we want our virtual environment only in the server, not in our local machine.
 
