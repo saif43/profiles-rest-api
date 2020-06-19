@@ -75,3 +75,28 @@ vagrant@ubuntu-bionic:/vagrant$ source ~/venv/bin/activate
 ```
 
 ---
+
+### Install required Python packages
+
+Run
+
+```sh
+vagrant@ubuntu-bionic:/vagrant$ touch requirements.txt
+
+```
+
+Write in requirements.txt
+
+```sh
+django==3.0.7
+djangorestframework==3.11.0
+
+```
+
+Install requirements.txt
+
+```sh
+pip install -r requirements.txt
+```
+
+---
