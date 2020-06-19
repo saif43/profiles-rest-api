@@ -160,3 +160,18 @@ INSTALLED_APPS = [
 ```
 
 ---
+
+### Start Django development web server
+
+Run
+
+```sh
+(venv) vagrant@ubuntu-bionic:/vagrant$ python manage.py runserver 0.0.0.0:8000
+
+```
+
+0.0.0.0 is making available on all network adapters and :8000 is for starting in Port 8000. In our Vagrant file, we mapped 8000 on our host machine, that's why we specify Port 8000 when we start the server.
+
+Start browser and goto [127.0.0.1:8000](127.0.0.1:8000)
+
+---
