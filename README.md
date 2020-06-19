@@ -100,3 +100,27 @@ pip install -r requirements.txt
 ```
 
 ---
+
+### Create Django project
+
+Run
+
+```sh
+(venv) vagrant@ubuntu-bionic:/vagrant$ django-admin.py startproject profiles_project .
+
+```
+
+The reason we want to put dot, because we want to create project in Root folder.
+
+---
+
+### Create an app
+
+Run
+
+```sh
+(venv) vagrant@ubuntu-bionic:/vagrant/profiles_project$ python manage.py startapp profiles_api
+
+```
+
+---
