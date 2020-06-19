@@ -81,7 +81,7 @@ vagrant@ubuntu-bionic:/vagrant$ source ~/venv/bin/activate
 Run
 
 ```sh
-vagrant@ubuntu-bionic:/vagrant$ touch requirements.txt
+(venv) vagrant@ubuntu-bionic:/vagrant$ touch requirements.txt
 
 ```
 
@@ -96,7 +96,7 @@ djangorestframework==3.11.0
 Install requirements.txt
 
 ```sh
-pip install -r requirements.txt
+(venv) vagrant@ubuntu-bionic:/vagrant$ pip install -r requirements.txt
 ```
 
 ---
@@ -121,6 +121,42 @@ Run
 ```sh
 (venv) vagrant@ubuntu-bionic:/vagrant/profiles_project$ python manage.py startapp profiles_api
 
+```
+
+---
+
+### Enable our app
+
+Goto profiles_project > profiles_api > profiles_project > settings.py
+append rest_framework and rest_framework.authtoken in INSTALLED_APPS list.
+
+```python
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
+]
+```
+
+Now we will our app name in INSTALLED_APPS list.
+
+```python
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'profiles_api',
+]
 ```
 
 ---
