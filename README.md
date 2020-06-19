@@ -65,3 +65,13 @@ vagrant@ubuntu-bionic:/vagrant$ python -m venv ~/venv
 The reason we are using ~ because we want our virtual environment only in the server, not in our local machine.
 
 ---
+
+### Activate Virtual Enviroment
+
+Run
+
+```sh
+vagrant@ubuntu-bionic:/vagrant$ source ~/venv/bin/activate
+```
+
+---
