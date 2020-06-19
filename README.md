@@ -58,7 +58,7 @@ vagrant ssh
 Run
 
 ```sh
-**vagrant@ubuntu-bionic:/vagrant$** cd /vagrant
+vagrant@ubuntu-bionic:$ cd /vagrant
 vagrant@ubuntu-bionic:/vagrant$ python -m venv ~/venv
 ```
 
