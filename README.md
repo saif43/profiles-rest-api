@@ -143,7 +143,7 @@ INSTALLED_APPS = [
 ]
 ```
 
-Now we will our app name in INSTALLED_APPS list.
+Now we will append our app name in INSTALLED_APPS list.
 
 ```python
 INSTALLED_APPS = [
@@ -173,5 +173,112 @@ Run
 0.0.0.0 is making available on all network adapters and :8000 is for starting in Port 8000. In our Vagrant file, we mapped 8000 on our host machine, that's why we specify Port 8000 when we start the server.
 
 Start browser and goto 127.0.0.1:8000
+
+---
+
+### Creating database model
+
+In models.py we are going to import AbstractUser and PermissionsMixin from django.contrib.auth.models.
+
+These are the standard base classes that you need to use when overwriting or customizing the default
+Django user model.
+
+```python
+from django.db import models
+from django.contrib.auth.models import AbstractUser, PermissionsMixin
+
+
+class UserProfile(AbstractUser, PermissionsMixin):
+    """Database model for user"""
+    email = models.EmailField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['name']
+
+    def get_full_name(self):
+        """Retrive full name for user"""
+        return name
+
+    def __str__(self):
+        return email
+```
+
+---
+
+### Adding user model manager
+
+Now because we've customized I'll use a model we need to tell Django how to interact with this user model in order to create users because by default when it creates a user it expects a user name field and a password filled.
+But we replace the user name field with an email field.
+So we just need to create a custom manager that can handle creating users with an email field instead
+of a user name field.
+
+```python
+from django.db import models
+from django.contrib.auth.models import AbstractUser, PermissionsMixin, BaseUserManager
+
+
+class UserProfileManager(BaseUserManager):
+    """Manager for user profile"""
+
+    def createUser(self, email, name, password=None):
+        """Create a new user profile"""
+        if not email:
+            raise ValueError("User must have an email")
+
+        email = self.normalize_email(email)
+        user = self.model(email=email, name=name)
+
+        user.set_password(password)
+        user.save(using=self._db)
+
+        return user
+
+    def createSuperUser(self, email, name, password):
+        """Create and save a new superuser"""
+
+        user = self.createUser(email, name, password)
+        user.is_superuser = True
+        user.is_staff = True
+        user.save(using=self._db)
+
+        return user
+
+
+class UserProfile(AbstractUser, PermissionsMixin):
+    """Database model for user"""
+    email = models.EmailField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['name']
+
+    def get_full_name(self):
+        """Retrive full name for users in the system"""
+        return name
+
+    def __str__(self):
+        return email
+
+```
+
+---
+
+### Set our custom user model
+
+Now that we've created our custom user model and our custom user model manager we can configure Django
+project to use this as the default user model instead of the one that's provided by Django.
+
+Goto profiles_project/settings.py and add
+
+```python
+AUTH_USER_MODEL = 'profiles_api.UserProfile'
+```
+
+at the bottom of the file.
 
 ---
