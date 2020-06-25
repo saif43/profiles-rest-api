@@ -282,3 +282,14 @@ AUTH_USER_MODEL = 'profiles_api.UserProfile'
 at the bottom of the file.
 
 ---
+
+### Create migrations and sync DB
+
+Next we're going to create a Django migration file for our models that we've added to the project. So every time we change a model or add additional models to our projects we need to create a new migration file the migration file will contain the steps required to modify the database to match our updated models.
+
+```python
+(venv) vagrant@ubuntu-bionic:/vagrant$ python manage.py makemigrations profiles_api
+(venv) vagrant@ubuntu-bionic:/vagrant$ python manage.py migrate
+```
+
+---
