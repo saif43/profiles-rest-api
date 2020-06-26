@@ -178,17 +178,17 @@ Start browser and goto 127.0.0.1:8000
 
 ### Creating database model
 
-In models.py we are going to import AbstractUser and PermissionsMixin from django.contrib.auth.models.
+In models.py we are going to import AbstractBaseUser and PermissionsMixin from django.contrib.auth.models.
 
 These are the standard base classes that you need to use when overwriting or customizing the default
 Django user model.
 
 ```python
 from django.db import models
-from django.contrib.auth.models import AbstractUser, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
 
-class UserProfile(AbstractUser, PermissionsMixin):
+class UserProfile(AbstractBaseUser, PermissionsMixin):
     """Database model for user"""
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
@@ -217,13 +217,13 @@ of a user name field.
 
 ```python
 from django.db import models
-from django.contrib.auth.models import AbstractUser, PermissionsMixin, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
 
 class UserProfileManager(BaseUserManager):
     """Manager for user profile"""
 
-    def createUser(self, email, name, password=None):
+    def create_user(self, email, name, password=None):
         """Create a new user profile"""
         if not email:
             raise ValueError("User must have an email")
@@ -236,10 +236,10 @@ class UserProfileManager(BaseUserManager):
 
         return user
 
-    def createSuperUser(self, email, name, password):
+    def create_superuser(self, email, name, password):
         """Create and save a new superuser"""
 
-        user = self.createUser(email, name, password)
+        user = self.create_user(email, name, password)
         user.is_superuser = True
         user.is_staff = True
         user.save(using=self._db)
@@ -247,7 +247,7 @@ class UserProfileManager(BaseUserManager):
         return user
 
 
-class UserProfile(AbstractUser, PermissionsMixin):
+class UserProfile(AbstractBaseUser, PermissionsMixin):
     """Database model for user"""
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
@@ -288,8 +288,18 @@ at the bottom of the file.
 Next we're going to create a Django migration file for our models that we've added to the project. So every time we change a model or add additional models to our projects we need to create a new migration file the migration file will contain the steps required to modify the database to match our updated models.
 
 ```python
-(venv) vagrant@ubuntu-bionic:/vagrant$ python manage.py makemigrations profiles_api
-(venv) vagrant@ubuntu-bionic:/vagrant$ python manage.py migrate
+(venv) vagrant@ubuntu-bionic:/vagrant/profiles_project$ python manage.py makemigrations profiles_api
+(venv) vagrant@ubuntu-bionic:/vagrant/profiles_project$ python manage.py migrate
 ```
+
+---
+
+### Creating a Superuser
+
+```python
+(venv) vagrant@ubuntu-bionic:/vagrant/profiles_project$ python manage.py createsuperuser
+```
+
+Then enter email, name and password
 
 ---
