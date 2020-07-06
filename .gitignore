@@ -144,6 +144,9 @@ dmypy.json
 # pytype static type analyzer
 .pytype/
 
+
+.vscode
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 

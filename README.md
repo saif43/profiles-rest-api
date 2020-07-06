@@ -192,7 +192,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     """Database model for user"""
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
@@ -251,7 +251,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     """Database model for user"""
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
@@ -298,6 +298,20 @@ Next we're going to create a Django migration file for our models that we've add
 
 ```python
 (venv) vagrant@ubuntu-bionic:/vagrant/profiles_project$ python manage.py createsuperuser
+```
+
+Then enter email, name and password
+
+---
+
+### Enable Django Admin
+
+Goto admin.py and import models of profiles api, and then register the model.
+
+```python
+from profile_api import models
+
+admin.site.register(models.UserProfile)
 ```
 
 Then enter email, name and password
