@@ -317,3 +317,17 @@ admin.site.register(models.UserProfile)
 Then enter email, name and password
 
 ---
+
+## API View
+
+Gives us control over:
+
+- Perfect for implementing complex logic
+- Calling other APIs
+- Working with local files
+
+### Enable Django Admin
+
+- **Need full control over the logic**. Such as when wr are running a very complicated algorithm or updating multiple data sources in one API call.
+- **Processing files and rendering a synchronous response.** Such as validating a file and returning the result in a same call.
+- **Calling other APIs/services.** Another time when we can use it, when we are calling other external APIs or services in the same request. -**Accessing local files or data**
