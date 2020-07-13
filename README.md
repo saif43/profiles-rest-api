@@ -326,7 +326,7 @@ Gives us control over:
 - Calling other APIs
 - Working with local files
 
-### Enable Django Admin
+### When to use API View
 
 - **Need full control over the logic**. Such as when wr are running a very complicated algorithm or updating multiple data sources in one API call.
 - **Processing files and rendering a synchronous response.** Such as validating a file and returning the result in a same call.
