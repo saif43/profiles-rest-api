@@ -332,3 +332,56 @@ Gives us control over:
 - **Processing files and rendering a synchronous response.** Such as validating a file and returning the result in a same call.
 - **Calling other APIs/services.** Another time when we can use it, when we are calling other external APIs or services in the same request.
 - **Accessing local files or data**
+
+---
+
+## Create first API View
+
+Goto views.py and erase everything. Then write
+
+```python
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+
+class HelloApiView(APIView):
+    """Test API View"""
+
+    def get(self, request, format=None):
+        result = [1, 2, 3, 4, 5]
+
+        return Response({"message": "Hello", "result": result})
+
+```
+
+---
+
+## Configure view URL
+
+In profiles_api create urls.py
+
+```python
+from django.urls import path
+from profiles_api import views
+
+urlpatterns = [
+    path("hello-view/", views.HelloApiView.as_view()),
+]
+```
+
+then goto profiles_projects > urls.py and write
+
+```python
+from django.urls import include, path
+
+```
+
+Include is a function that we can use to include urls from other apps in the root projects.
+
+In urlpatterns list, append this code
+
+```python
+path("api/", include("profiles_api.urls")),
+```
+
+---
