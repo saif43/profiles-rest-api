@@ -385,3 +385,76 @@ path("api/", include("profiles_api.urls")),
 ```
 
 ---
+
+## Create a Serializer
+
+If we are going to add POST or UPDATE functionality to our Hello API View, then we need to create a serializer to receive the content we post to the API.
+Let's create "serializers.py" file in our profiles_api app.
+
+What we're gonna do is we're gonna create a simple serialize that accepts a name input and then we're going to add this to our API view and we're gonna use it to test the post functionality of our API view.
+
+```python
+from rest_framework import serializers
+
+
+class HelloSerializer(serializers.Serializer):
+    """Serializes a name field for testing our APIView"""
+
+    name = serializers.CharField(max_length=10)
+
+```
+
+---
+
+## Add POST method to APIView
+
+Let's go to our "views.py" and import status from rest_framework and our serializer module from "serializers.py".
+
+The status object from rest_framework is the list of HTTP status codes that we can use when returning responses from our API.
+
+We are going to use the serializer module to tell our API view what data to expect when making post, put and patch requests.
+
+Now we'll write our post method
+
+```python
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
+from profiles_api import serializers
+
+
+class HelloApiView(APIView):
+    """Test API View"""
+
+    serializer_class = serializers.HelloSerializer
+
+    def get(self, request, format=None):
+        result = [1, 2, 3, 4, 5]
+
+        return Response({"message": "Hello", "result": result})
+
+    def post(self, request):
+        """Create a post request with our name"""
+
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            name = serializer.validated_data.get("name")
+            msg = f"Hello {name}"
+            return Response({"message": msg})
+        else:
+            Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+```
+
+The self.serializer_class function is a function that comes with the API view that retrieves the configured serializer class for our view. So it's the standard way we should retrive the serializer class when working with serialzer in a view.
+
+Next we go ahead and validate our serializer. It means, we are going to ensure that the input is valid as per as the specification of our serializer fields.
+
+In our case we are validating that our name is no longer then 10 characters.
+
+---
+
+## Add PUT, PATCH and DELETE methods
