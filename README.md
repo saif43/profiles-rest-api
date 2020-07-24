@@ -335,7 +335,7 @@ Gives us control over:
 
 ---
 
-## Create first API View
+### Create first API View
 
 Goto views.py and erase everything. Then write
 
@@ -356,7 +356,7 @@ class HelloApiView(APIView):
 
 ---
 
-## Configure view URL
+### Configure view URL
 
 In profiles_api create urls.py
 
@@ -386,7 +386,7 @@ path("api/", include("profiles_api.urls")),
 
 ---
 
-## Create a Serializer
+### Create a Serializer
 
 If we are going to add POST or UPDATE functionality to our Hello API View, then we need to create a serializer to receive the content we post to the API.
 Let's create "serializers.py" file in our profiles_api app.
@@ -406,7 +406,7 @@ class HelloSerializer(serializers.Serializer):
 
 ---
 
-## Add POST method to APIView
+### Add POST method to APIView
 
 Let's go to our "views.py" and import status from rest_framework and our serializer module from "serializers.py".
 
@@ -457,7 +457,7 @@ In our case we are validating that our name is no longer then 10 characters.
 
 ---
 
-## Add PUT, PATCH and DELETE methods
+### Add PUT, PATCH and DELETE methods
 
 ```python
 from rest_framework.views import APIView
@@ -502,3 +502,79 @@ class HelloApiView(APIView):
         return Response({"method": "DELETE"})
 
 ```
+
+---
+
+## ViewSets
+
+Gives us control over:
+
+- Takes care of a lot of common logic
+- Perfect for standard database operations
+- Fastest way to make an API which interfaces with a database backend
+
+### When to use API View
+
+- **CRUD**. If we need to write an API that performs a simple CREATE, READ, UPDATE and DELETE operation on an existing database model.
+- **A quick and simple API** Quick and simple API to manage a predefiend objects.
+- **Calling other APIs/services.** Another time when we can use it, when we are calling other external APIs or services in the same request.
+- **No customization on the logic** Very basic custom logic additional to the view set featrues already provided by Django REST Framework.
+
+---
+
+### Create a simple Viewset
+
+In views.py, import viewsets from rest_framework then, write
+
+```python
+class HelloViewSet(viewsets.ViewSet):
+    """Test API viewset"""
+
+    def list(self, request):
+        """return a Hello msg"""
+        result = [1, 2, 3, 4, 5]
+        result.append("View set")
+
+        return Response({"message": "Hello", "result": result})
+```
+
+---
+
+### Add URL router
+
+Registering Viewset in URL is slightly differnt from APIView.
+
+So with Viewset we may be accessing the list request, which is just the route of our API. And in this case we would use a differnt URL than if we are accessing the specific object to do an UPDATE, a DELETE or a GET.
+
+Import include django.urls, include used for including list of URLs in the URL pattern and assigning the lists to a specific URL.
+
+Next import DefaultRouter from rest_framework.routers, it's used to register URL.
+
+```python
+from django.urls import path, include
+from profiles_api import views
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register("hello-viewset", views.HelloViewSet,basename="hello-viewset")
+
+urlpatterns = [
+    path("hello-view/", views.HelloApiView.as_view()),
+    path('', include(router.urls)
+]
+
+```
+
+In router.register function,
+
+1st argument is the name of the URL we wish to create. We have given "hello-viewset", we are going to access our API using "hello-viewset". Router will create all of the 4 URLs for us. So we don't need to use any '/' forward slash here.
+
+2nd argument is the viewset, we wish to register in this URL.
+
+3rd argument is the basename, this is going to be used for retriving the URL in our router.
+
+In urlpatterns add `path('', include(router.urls)`
+
+As we registered new route with router, it generates a list of URLs that are associated for our view set. It figures out the URLs that are REQUIRED for all of the functions that we add to our VIEWSET, then it generates the URL list which we can pass in using PATH and INCLUDE function.
+
+We have put empty string, because we don't want to put any prefix to this URL.

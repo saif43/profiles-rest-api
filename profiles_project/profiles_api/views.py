@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
 
 from profiles_api import serializers
 
@@ -12,6 +12,7 @@ class HelloApiView(APIView):
 
     def get(self, request, format=None):
         result = [1, 2, 3, 4, 5]
+        result.append("APIView")
 
         return Response({"message": "Hello", "result": result})
 
@@ -39,3 +40,13 @@ class HelloApiView(APIView):
         """Handle updating an object"""
         return Response({"method": "DELETE"})
 
+
+class HelloViewSet(viewsets.ViewSet):
+    """Test API viewset"""
+
+    def list(self, request):
+        """return a Hello msg"""
+        result = [1, 2, 3, 4, 5]
+        result.append("View set")
+
+        return Response({"message": "Hello", "result": result})
