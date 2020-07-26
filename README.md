@@ -517,8 +517,8 @@ Gives us control over:
 
 - **CRUD**. If we need to write an API that performs a simple CREATE, READ, UPDATE and DELETE operation on an existing database model.
 - **A quick and simple API** Quick and simple API to manage a predefiend objects.
-- **Calling other APIs/services.** Another time when we can use it, when we are calling other external APIs or services in the same request.
 - **No customization on the logic** Very basic custom logic additional to the view set featrues already provided by Django REST Framework.
+- **Working with simple database structure**
 
 ---
 
@@ -560,7 +560,46 @@ router.register("hello-viewset", views.HelloViewSet,basename="hello-viewset")
 
 urlpatterns = [
     path("hello-view/", views.HelloApiView.as_view()),
-    path('', include(router.urls)
+    path('', include(router.urls))
+]
+
+```
+
+In router.register function,
+
+1st argument is the name of the URL we wish to create. We have given "hello-viewset", we are going to access our API using "hello-viewset". Router will create all of the 4 URLs for us. So we don't need to use any '/' forward slash here.
+
+2nd argument is the viewset, we wish to register in this URL.
+
+3rd argument is the basename, this is going to be used for retriving the URL in our router.
+
+In urlpatterns add `path('', include(router.urls)`
+
+As we registered new route with router, it generates a list of URLs that are associated for our view set. It figures out the URLs that are REQUIRED for all of the functions that we add to our VIEWSET, then it generates the URL list which we can pass in using PATH and INCLUDE function.
+
+## We have put empty string, because we don't want to put any prefix to this URL.
+
+### Add URL router
+
+Registering Viewset in URL is slightly differnt from APIView.
+
+So with Viewset we may be accessing the list request, which is just the route of our API. And in this case we would use a differnt URL than if we are accessing the specific object to do an UPDATE, a DELETE or a GET.
+
+Import include django.urls, include used for including list of URLs in the URL pattern and assigning the lists to a specific URL.
+
+Next import DefaultRouter from rest_framework.routers, it's used to register URL.
+
+```python
+from django.urls import path, include
+from profiles_api import views
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register("hello-viewset", views.HelloViewSet,basename="hello-viewset")
+
+urlpatterns = [
+    path("hello-view/", views.HelloApiView.as_view()),
+    path('', include(router.urls))
 ]
 
 ```
@@ -578,3 +617,69 @@ In urlpatterns add `path('', include(router.urls)`
 As we registered new route with router, it generates a list of URLs that are associated for our view set. It figures out the URLs that are REQUIRED for all of the functions that we add to our VIEWSET, then it generates the URL list which we can pass in using PATH and INCLUDE function.
 
 We have put empty string, because we don't want to put any prefix to this URL.
+
+---
+
+### Add create, retrieve, update, partial_update and destroy functions
+
+Open view.py and in HelloViewSet class..
+
+```python
+class HelloViewSet(viewsets.ViewSet):
+    """Test API viewset"""
+
+    serializer_class = serializers.HelloSerializer
+
+    def list(self, request):
+        """return a Hello msg"""
+        result = [1, 2, 3, 4, 5]
+        result.append("View set")
+
+        return Response({"message": "Hello", "result": result})
+
+    def create(self, request):
+        """Create a Hello msg"""
+
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            name = serializer.validated_data.get("name")
+            message = f"Hello {name}"
+
+            return Response({"message": message})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def retrieve(self, request, pk=None):
+        """Handle getting an object by ID"""
+
+        return Response({"HTTP method": "GET"})
+
+    def update(self, request, pk=None):
+        """Update an object by ID"""
+
+        return Response({"HTTP method": "PUT"})
+
+    def partial_update(self, request, pk=None):
+        """Update an object by ID"""
+
+        return Response({"HTTP method": "PATCH"})
+
+    def destroy(self, request, pk=None):
+        """delete an object by ID"""
+
+        return Response({"HTTP method": "DELETE"})
+
+```
+
+To see the list of object, hit `http://127.0.0.1:8000/api/hello-viewset/` with get method.
+
+We can also create an object from here. But Unlike the API view we don't actually see the PUT, PATCH and DELETE methods here on the Hello-ViewSet API.
+
+Viewset expect that we use `http://127.0.0.1:8000/api/hello-viewset/` endpoint to retrive a list of objects in the database, and we will specify a Primary Key ID in the URL when making the changes to a specific object.
+
+So according to use the RETRIEVE, UPDATE, PARTIAL_UPDATE, DESTROY methods, we need to specify a primary key at the end of the URL.
+
+Example: `http://127.0.0.1:8000/api/hello-viewset/1/`
+
+---
