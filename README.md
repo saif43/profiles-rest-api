@@ -577,45 +577,6 @@ In urlpatterns add `path('', include(router.urls)`
 
 As we registered new route with router, it generates a list of URLs that are associated for our view set. It figures out the URLs that are REQUIRED for all of the functions that we add to our VIEWSET, then it generates the URL list which we can pass in using PATH and INCLUDE function.
 
-## We have put empty string, because we don't want to put any prefix to this URL.
-
-### Add URL router
-
-Registering Viewset in URL is slightly differnt from APIView.
-
-So with Viewset we may be accessing the list request, which is just the route of our API. And in this case we would use a differnt URL than if we are accessing the specific object to do an UPDATE, a DELETE or a GET.
-
-Import include django.urls, include used for including list of URLs in the URL pattern and assigning the lists to a specific URL.
-
-Next import DefaultRouter from rest_framework.routers, it's used to register URL.
-
-```python
-from django.urls import path, include
-from profiles_api import views
-from rest_framework.routers import DefaultRouter
-
-router = DefaultRouter()
-router.register("hello-viewset", views.HelloViewSet,basename="hello-viewset")
-
-urlpatterns = [
-    path("hello-view/", views.HelloApiView.as_view()),
-    path('', include(router.urls))
-]
-
-```
-
-In router.register function,
-
-1st argument is the name of the URL we wish to create. We have given "hello-viewset", we are going to access our API using "hello-viewset". Router will create all of the 4 URLs for us. So we don't need to use any '/' forward slash here.
-
-2nd argument is the viewset, we wish to register in this URL.
-
-3rd argument is the basename, this is going to be used for retriving the URL in our router.
-
-In urlpatterns add `path('', include(router.urls)`
-
-As we registered new route with router, it generates a list of URLs that are associated for our view set. It figures out the URLs that are REQUIRED for all of the functions that we add to our VIEWSET, then it generates the URL list which we can pass in using PATH and INCLUDE function.
-
 We have put empty string, because we don't want to put any prefix to this URL.
 
 ---
