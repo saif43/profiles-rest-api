@@ -644,3 +644,121 @@ So according to use the RETRIEVE, UPDATE, PARTIAL_UPDATE, DESTROY methods, we ne
 Example: `http://127.0.0.1:8000/api/hello-viewset/1/`
 
 ---
+
+## Creating Profile API
+
+### Purpose
+
+1. Create a new Profile
+
+   - Handle registration of new users
+   - Validate profile data
+
+2. Listing existing profiles
+
+   - Search for profiles
+   - Email and name
+
+3. View specific profiles
+
+   - Using profile ID
+
+4. Update profile of logged in user
+   - Change name, email and password
+   - Delete own profile
+
+| API URLs                   | Purpose                                                                                                                                                              |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `api/profile`              | <ul><li>list all profiles when HTTP GET method is called</li><li>create new profile when HTTP POST method is called</li></ul>                                        |
+| `api/profile/<profile_id>` | <ul><li> View specific profile details by using HTTP GET </li> <li> update object using HTTP PUT / PATCH </li> <li> remove it completely using HTTP DELETE </li><ul> |
+
+---
+
+### Create user profile serializer
+
+Let's create UserProfileSerializer in `serializer.py`. We are going to use **ModelSerializer** as a base class and we'll get them connected up to our UserProfile model. But why **ModelSerializer** ???
+
+**ModelSerializer** is very similer to a regular serializer except it has a bunch of extra functionality which makes it really wasy to work with Django Database Model.
+
+```python
+from rest_framework import serializers
+from profiles_api import models
+
+
+class HelloSerializer(serializers.Serializer):
+    """Serializes a name field for testing our APIView"""
+
+    name = serializers.CharField(max_length=10)
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    """Serialize a user profile object"""
+
+    class Meta:
+        model = models.UserProfile
+        fields = ("id", "email", "name", "password")
+        extra_kwargs = {
+            "password": {"write_only": True, "style": {"input_type": "password"}}
+        }
+
+    def create(self, validated_data):
+        """Create and return a new user"""
+
+        user = models.UserProfile.objects.create_user(
+            email=validated_data["email"],
+            name=validated_data["name"],
+            password=validated_data["password"],
+        )
+
+        return user
+```
+
+The way that we work with **ModelSerializer** is, we use a **meta** class to configure the serilizer to point a specific model in our project.
+
+`model = models.UserProfile` sets our serilizer up to point our UserProfile model.
+
+`fields = ("id", "email", "name", "password")`, So this is a list of all the field that we want to make accessible in our API.
+
+`extra_kwargs` is for custom configuration.
+
+ModelSerializer provides default **Create** function. But we want to override this Create function and use our user create_user function. Because we want our Password to be hashed.
+
+---
+
+### Create profile ViewSet
+
+Let's create a viewset to access the serilizer. Go to `views.py` and import models.
+
+We are going to use ModelViewSet as base class, which is specifically designed for managing models through API.
+
+```python
+class UserProfileViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.UserProfileSerializer
+    queryset = models.UserProfile.objects.all()
+```
+
+The way we work with the ModelViewSet is that, we connect a serializer class and provide a **queryset** so that it knows which objects in the database are gonna be managed through this viewset.
+
+The Django REST Framework knows the standard function that we want to perform on a model view set, and that is the CREATE, LIST, UPDATE, PARTIAL_UPDATE and DESTROY. Django REST Framework takes care of all of this for us just by assigning these Serializer class to model serializer and the queryset.
+
+---
+
+### Register profile Viewset with the URL
+
+```python
+from django.urls import path, include
+from profiles_api import views
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register("hello-viewset", views.HelloViewSet, basename="hello-viewset")
+router.register("profile", views.UserProfileViewSet)
+
+urlpatterns = [
+    path("hello-view/", views.HelloApiView.as_view()),
+    path("", include(router.urls)),
+]
+
+```
+
+Unlike the HelloViewSet, we don't need to specify basename for our Porfile viewset. Because in `UserProfileViewSet` we have provided queryset. If we provide queryset, then Django rest framework can figure out the name from the model that's assigned to it.
