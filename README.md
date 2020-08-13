@@ -800,3 +800,27 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
 
 ```
+
+---
+
+### Add Search profiles features
+
+In `views.py` import filters from rest_framework. Then make some changes into `UserProfileViewSet`
+
+```python
+class UserProfileViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.UserProfileSerializer
+    queryset = models.UserProfile.objects.all()
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (permissions.UserOwnProfile,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = (
+        "name",
+        "email",
+    )
+
+```
+
+So in the browser we'll be able to see a Filter button. But as a API, we need to goto `http://127.0.0.1:8000/api/profile/?search=query` for search any particular user.
+
+---
