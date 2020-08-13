@@ -762,3 +762,41 @@ urlpatterns = [
 ```
 
 Unlike the HelloViewSet, we don't need to specify basename for our Porfile viewset. Because in `UserProfileViewSet` we have provided queryset. If we provide queryset, then Django rest framework can figure out the name from the model that's assigned to it.
+
+---
+
+### Create Permission Class
+
+We don't want any user to modify another user's data. That's why we are creating permission class. Create `permissions.py` under profiles_api.
+
+```python
+from rest_framework import permissions
+
+
+class UserOwnProfile(permissions.BasePermission):
+    """Allow users to edit their own profiles"""
+
+    def has_object_permission(self, request, view, obj):
+        """check if user is trying to edit their own profile"""
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return request.user.id == obj.id
+
+```
+
+---
+
+### Add authentication and permission in view.py
+
+In `views.py` import TokenAuthentication from rest_framework.authentication and permission.py. Then make some changes into `UserProfileViewSet`
+
+```python
+class UserProfileViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.UserProfileSerializer
+    queryset = models.UserProfile.objects.all()
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (permissions.UserOwnProfile,)
+
+
+```
