@@ -824,3 +824,34 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 So in the browser we'll be able to see a Filter button. But as a API, we need to goto `http://127.0.0.1:8000/api/profile/?search=query` for search any particular user.
 
 ---
+
+### Create login API viewset
+
+In `views.py`
+
+```python
+# add imports
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.settings import api_settings
+
+class UserLoginApiView(ObtainAuthToken):
+    """Handle creating user authentication token"""
+
+    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+
+
+```
+
+ObtainAuthToken is view which comes with Django framework, that we can use to generate authtoken.
+
+ObtainAuthToken can be added in URLs. However it doesn't BY DEFAULT enable itself in browsable Django admin site.
+
+So we need to customize it to browsable API, so that we can test this.
+
+`renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES` what it does is, it addes renderer class in ObtainAuthToken. ObtainAuthToken does't come with renderer class by default. That's why we had to add to manually.
+
+Now goto `urls.py`
+
+Add `path("login/", views.UserLoginApiView.as_view()),` in urlpatterns.
+
+---
