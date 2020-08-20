@@ -761,7 +761,7 @@ urlpatterns = [
 
 ```
 
-Unlike the HelloViewSet, we don't need to specify basename for our Porfile viewset. Because in `UserProfileViewSet` we have provided queryset. If we provide queryset, then Django rest framework can figure out the name from the model that's assigned to it.
+Unlike the HelloViewSet, we don't need to specify basename for our Profile viewset. Because in `UserProfileViewSet` we have provided queryset. If we provide queryset, then Django rest framework can figure out the name from the model that's assigned to it.
 
 ---
 
@@ -805,6 +805,10 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
 ### Add Search profiles features
 
+| API URLs                    | Purpose             |
+| --------------------------- | ------------------- |
+| `api/profile/?search=query` | Search User profile |
+
 In `views.py` import filters from rest_framework. Then make some changes into `UserProfileViewSet`
 
 ```python
@@ -826,6 +830,10 @@ So in the browser we'll be able to see a Filter button. But as a API, we need to
 ---
 
 ### Create login API viewset
+
+| API URLs            | Purpose     |
+| ------------------- | ----------- |
+| `api/profile/login` | User log in |
 
 In `views.py`
 
@@ -855,3 +863,117 @@ Now goto `urls.py`
 Add `path("login/", views.UserLoginApiView.as_view()),` in urlpatterns.
 
 ---
+
+## Creating Profile Feed API
+
+### Purpose
+
+1. Create new feed items for authenticated users
+
+2. Updating feed items for authenticated users
+
+3. Deleting feed items for authenticated users
+
+4. Viewing other users feed
+
+| API URLs                  | Purpose                                                                                                                                      |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `api/feed`                | <ul><li>GET (List of feed items) </li><li>POST (create feed items for authenticated users) </li></ul>                                        |
+| `api/feed/<feed_item_id>` | <ul><li> GET (getting specific feed item) </li> <li> PUT / PATCH (for updaing a feed item)</li> <li> DELETE (deleting a feed item) </li><ul> |
+
+---
+
+### Add Profile feed item Model
+
+Goto `models.py` and add
+
+```python
+from django.conf import settings
+
+class ProfileFeedItem(models.Model):
+    """Profile status update"""
+
+    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    status_text = models.CharField(max_length=255)
+    created_on = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        """return model as a String"""
+        return self.status_text
+
+```
+
+We could have write `"UserProfile"` instead of `settings.AUTH_USER_MODEL`. While we are using Auth user model, it's **Best Practice** to use `settings.AUTH_USER_MODEL`. Because if we decide to swap different model then the relationships would automatically be updated without us having to go through and manually change it everywhere that we referenced in our `models.py` file.
+
+---
+
+### Model migration
+
+Since we did make some changes in `models.py`, we need to run migrations.
+
+```
+(venv) vagrant@ubuntu-bionic:/vagrant/profiles_project$ python manage.py makemigrations
+(venv) vagrant@ubuntu-bionic:/vagrant/profiles_project$ python manage.py migrate
+```
+
+---
+
+### Register the model
+
+Goto `admin.py` and add,
+
+```python
+admin.site.register(models.ProfileFeedItem)
+```
+
+---
+
+### Create Profile Feed Item Serializer
+
+Goto `serializer.py` and add,
+
+```python
+class ProfileFeedItemSerializer(serializers.ModelSerializer):
+    """Serialize a profile feed item object"""
+
+    class Meta:
+        model = models.ProfileFeedItem
+        fields = ("id", "user_profile", "status_text", "created_on")
+        extra_kwargs = {"user_profile": {"read_only": True}}
+```
+
+---
+
+### Create viewset of Profile Feed Item
+
+Goto `views.py` and add
+
+```python
+class ProfileFeedItemView(viewsets.ModelViewSet):
+    """Handling creating, reading, updating profile feed item"""
+
+    serializer_class = serializers.ProfileFeedItemSerializer
+    authentication_classes = (TokenAuthentication,)
+    queryset = models.ProfileFeedItem.objects.all()
+
+    def perform_create(self, serializer):
+        """Sets the user as Logged in user"""
+        serializer.save(user_profile=self.request.user)
+```
+
+The `perform_create` is a handy function which comes with Django Rest Framework, that allows you to override the behavior or customize the behavior for creating objects through a model viewset.
+
+So when a request gets made to our viewset, it gets passed into our serialied class and validated and then serializer.save() is called by default.
+
+If we need to customize the logic for creating an object then we can perform this `perform_create` function.
+
+Here we want to put the id of authenticated user, that's why we are passing `user_profile=self.request.user`.
+
+The request object is an object that gets passed into all view sets every time a request is made and as the name suggests it contains all of the details about the request being made to the view set because we've added the token authentication to our view set if the user has authenticated then the request will have a user associated to the authenticated user.
+So this user this user field gets added whenever the user is authenticated.
+
+Now lets's link up our viewset in to `urls.py`. Goto `urls.py` and add,
+
+```python
+router.register("feed", views.ProfileFeedItemView)
+```
