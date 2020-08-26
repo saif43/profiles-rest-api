@@ -977,3 +977,55 @@ Now lets's link up our viewset in to `urls.py`. Goto `urls.py` and add,
 ```python
 router.register("feed", views.ProfileFeedItemView)
 ```
+
+---
+
+### Add permission for Feed API
+
+We want two kind of permissions.
+
+1. User will be able to update their own feed.
+
+2. If the user is not authenticated then feeds will be in read only mood.
+
+goto `permissions.py` and add,
+
+```python
+class UpdateOwnStatus(permissions.BasePermission):
+    """Allow users to add their own status"""
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return obj.user_profile.id == request.user.id
+```
+
+Goto `views.py` and merge this permission in `ProfileFeedItemView` class.
+
+```python
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
+class ProfileFeedItemView(viewsets.ModelViewSet):
+    """Handling creating, reading, updating profile feed item"""
+
+    serializer_class = serializers.ProfileFeedItemSerializer
+    authentication_classes = (TokenAuthentication,)
+    queryset = models.ProfileFeedItem.objects.all()
+    permission_classes = (
+        IsAuthenticatedOrReadOnly,
+        permissions.UpdateOwnStatus
+    )
+
+    def perform_create(self, serializer):
+        """Sets the user as Logged in user"""
+        serializer.save(user_profile=self.request.user)
+```
+
+`IsAuthenticatedOrReadOnly` makes sure, if there is no authenticated users, then feeds will be in show only mode.
+
+And `UpdateOwnStatus` will make sure that a user can't update another user's feed.
+
+If we want to show our feeds to our authenticated users only, then we will use `IsAuthenticated` instead of `IsAuthenticatedOrReadOnly`.
+
+---
